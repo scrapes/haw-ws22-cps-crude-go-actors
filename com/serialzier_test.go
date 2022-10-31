@@ -80,8 +80,8 @@ func TestSerializer_Decode(t *testing.T) {
 		t.Error(err2)
 	}
 
-	name := message.Interface().(test).Name
-	num := message.Interface().(test).Num
+	name := message.Interface().(*test).Name
+	num := message.Interface().(*test).Num
 
 	if testObject.Name != name || testObject.Num != num {
 		t.Error("Mismatch of Test Object")

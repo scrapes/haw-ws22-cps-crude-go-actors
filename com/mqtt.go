@@ -26,6 +26,7 @@ type MqttClient struct {
 	callbacks      map[string][]SubCallback
 	types          map[string]reflect.Type
 	publishMutex   sync.Mutex
+	clientUUID     uuid.UUID
 }
 
 func mqttWait(t mqtt.Token) error {
@@ -52,7 +53,7 @@ func NewMqttClient(mqttHost string, verbose bool) *MqttClient {
 	mqttUrl, err := url2.Parse(mqttHost)
 	hosts := []*url2.URL{mqttUrl}
 
-	clientID := "MqttActors"
+	clientID := uuid.New()
 
 	if err != nil {
 		_, err := fmt.Fprintln(os.Stderr, err)
@@ -64,7 +65,7 @@ func NewMqttClient(mqttHost string, verbose bool) *MqttClient {
 
 	options := mqtt.ClientOptions{
 		Servers:  hosts,
-		ClientID: clientID,
+		ClientID: clientID.String(),
 	}
 
 	options.SetOrderMatters(true)
@@ -76,6 +77,7 @@ func NewMqttClient(mqttHost string, verbose bool) *MqttClient {
 		serializer: NewSerializer(),
 		callbacks:  make(map[string][]SubCallback),
 		types:      make(map[string]reflect.Type),
+		clientUUID: clientID,
 	}
 	return &ret
 }

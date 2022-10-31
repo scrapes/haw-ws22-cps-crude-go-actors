@@ -1,9 +1,9 @@
 package actor
 
 import (
-	"gaffa/com"
-	"gaffa/types"
 	"github.com/google/uuid"
+	"gitlab.com/anwski/crude-go-actors/com"
+	"gitlab.com/anwski/crude-go-actors/types"
 	"reflect"
 )
 

@@ -1,8 +1,8 @@
 package com
 
 import (
-	"gaffa/types"
 	"github.com/google/uuid"
+	"gitlab.com/anwski/crude-go-actors/types"
 	"testing"
 )
 
