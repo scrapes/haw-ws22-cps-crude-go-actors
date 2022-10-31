@@ -2,24 +2,24 @@ package actor
 
 import (
 	"fmt"
-	"gaffa/com"
+	"gitlab.com/anwski/crude-go-actors/com"
 	"sync"
 	"testing"
 )
 
 func TestState_AddBehaviour(t *testing.T) {
-	client := com.NewMqttClient("mqtt://127.0.0.1:1883")
+	client := com.NewMqttClient("mqtt://127.0.0.1:1883", true)
 	err := client.ConnectSync()
 	if err != nil {
-		return
+		t.Error(err)
 	}
 	fmt.Println("Connected")
 
 	wg := sync.WaitGroup{}
 
 	topic := "/test/actor/sub/"
-	sum := 10
-	add := 10
+	sum := 2
+	add := 2
 
 	for i := 0; i < sum*add; i++ {
 		actor := NewActor(client, "TestActor")
@@ -36,31 +36,32 @@ func TestState_AddBehaviour(t *testing.T) {
 			t.Fatal(err)
 		}
 	}
-
-	for {
-		wg.Add(sum * add)
-		fmt.Println("Starting round...")
-		for i := 0; i < add; i++ {
-			tpc := fmt.Sprintf(topic+"%d", i)
-			toSend := com.Message[int]{
-				Data:  i,
-				Topic: tpc,
-			}
-			err2 := client.PublishJson(toSend.Topic, toSend)
-			if err2 != nil {
-				t.Fatal(err2)
-			}
+	wg.Add(sum * add)
+	fmt.Println("Starting round...")
+	for i := 0; i < add; i++ {
+		tpc := fmt.Sprintf(topic+"%d", i)
+		toSend := com.Message[int]{
+			Data:  i,
+			Topic: tpc,
 		}
-
-		wg.Wait()
-
-		fmt.Println("Done!")
+		err2 := client.PublishJson(toSend.Topic, toSend)
+		if err2 != nil {
+			t.Fatal(err2)
+		}
 	}
+
+	wg.Wait()
+
+	fmt.Println("Done!")
 
 }
 
 func TestSendMessageAndJson(t *testing.T) {
-	mqttClient := com.NewMqttClient("mqtt://127.0.0.1:1883")
+	mqttClient := com.NewMqttClient("mqtt://127.0.0.1:1883", true)
+	err := mqttClient.ConnectSync()
+	if err != nil {
+		t.Error(err)
+	}
 	sendingActor := NewActor(mqttClient, "SendingActor")
 	type args struct {
 		actor   *State

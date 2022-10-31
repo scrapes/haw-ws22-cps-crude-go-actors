@@ -1,7 +1,7 @@
 package com
 
 import (
-	"gaffa/types"
+	"gitlab.com/anwski/crude-go-actors/types"
 	"reflect"
 )
 

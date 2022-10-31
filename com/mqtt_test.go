@@ -2,8 +2,8 @@ package com
 
 import (
 	"fmt"
-	"gaffa/types"
 	"github.com/google/uuid"
+	"gitlab.com/anwski/crude-go-actors/types"
 	"reflect"
 	"runtime"
 	"sync"
@@ -14,10 +14,10 @@ func TestMqttClient_Subscribe(t *testing.T) {
 	client := NewMqttClient("mqtt://127.0.0.1:1883", true)
 	err := client.ConnectSync()
 	if err != nil {
-		return
+		t.Error(err)
 	}
 	fmt.Println("Connected")
-	sum := 10
+	sum := 1
 
 	wg := sync.WaitGroup{}
 	wg.Add(sum)
@@ -45,7 +45,7 @@ func TestMqttClient_Subscribe(t *testing.T) {
 		}, ID: uid})
 
 		if err22 != nil {
-			fmt.Println(err22)
+			t.Error(err22)
 		}
 	}
 
@@ -55,7 +55,7 @@ func TestMqttClient_Subscribe(t *testing.T) {
 		msg.Topic = tpc
 		err3 := client.PublishJson(tpc, msg)
 		if err3 != nil {
-			return
+			t.Error(err3)
 		}
 	}
 	wg.Wait()
