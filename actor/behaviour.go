@@ -6,29 +6,29 @@ import (
 	"reflect"
 )
 
-type Callback[T any] func(self *State, message com.Message[T])
+type Callback[T any] func(self *Actor, message com.Message[T])
 
 type Behaviour struct {
 	callback reflect.Value
-	topic    string
+	Name     string
 	typ      reflect.Type
 	id       uuid.UUID
 	JSON     bool
 }
 
-func NewBehaviour[T any](topic string, callback Callback[T]) *Behaviour {
-	return _NewBehaviour[T](topic, callback, false)
+func NewBehaviour[T any](Name string, callback Callback[T]) *Behaviour {
+	return _NewBehaviour[T](Name, callback, false)
 }
 
-func NewBehaviourJson[T any](topic string, callback Callback[T]) *Behaviour {
-	return _NewBehaviour[T](topic, callback, true)
+func NewBehaviourJson[T any](Name string, callback Callback[T]) *Behaviour {
+	return _NewBehaviour[T](Name, callback, true)
 }
 
-func _NewBehaviour[T any](topic string, callback Callback[T], json bool) *Behaviour {
+func _NewBehaviour[T any](Name string, callback Callback[T], json bool) *Behaviour {
 	genType := com.Message[T]{}
 	bhv := Behaviour{
 		callback: reflect.ValueOf(callback),
-		topic:    topic,
+		Name:     Name,
 		typ:      reflect.TypeOf(genType),
 		id:       uuid.New(),
 		JSON:     json,
@@ -36,7 +36,7 @@ func _NewBehaviour[T any](topic string, callback Callback[T], json bool) *Behavi
 	return &bhv
 }
 
-func (bhv *Behaviour) Call(self *State, messagePtr reflect.Value) {
+func (bhv *Behaviour) Call(self *Actor, messagePtr reflect.Value) {
 	// dereference pointer
 	message := reflect.Indirect(messagePtr)
 
@@ -46,8 +46,8 @@ func (bhv *Behaviour) Call(self *State, messagePtr reflect.Value) {
 	})
 }
 
-func (bhv *Behaviour) GetTopic() string {
-	return bhv.topic
+func (bhv *Behaviour) GetName() string {
+	return bhv.Name
 }
 
 func (bhv *Behaviour) GetTyp() reflect.Type {

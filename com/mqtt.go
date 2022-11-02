@@ -20,6 +20,7 @@ type SubCallback struct {
 
 type MqttClient struct {
 	client         mqtt.Client
+	verbose        bool
 	qos            byte
 	serializer     *Serializer
 	mutexCallbacks sync.Mutex
@@ -73,6 +74,7 @@ func NewMqttClient(mqttHost string, verbose bool) *MqttClient {
 	client := mqtt.NewClient(&options)
 	ret := MqttClient{
 		client:     client,
+		verbose:    verbose,
 		qos:        1,
 		serializer: NewSerializer(),
 		callbacks:  make(map[string][]SubCallback),
@@ -167,6 +169,9 @@ func (_client *MqttClient) PublishValue(topic string, obj reflect.Value) error {
 	if err != nil {
 		return err
 	}
+	if _client.verbose {
+		fmt.Println(buffer)
+	}
 	token := _client.client.Publish(topic, _client.qos, false, buffer)
 	_client.publishMutex.Unlock()
 	return mqttWait(token)
@@ -178,6 +183,9 @@ func (_client *MqttClient) Publish(topic string, obj any) error {
 	buffer, err := _client.serializer.Encode(obj)
 	if err != nil {
 		return err
+	}
+	if _client.verbose {
+		fmt.Println(buffer)
 	}
 	token := _client.client.Publish(topic, _client.qos, false, buffer)
 	_client.publishMutex.Unlock()
@@ -194,6 +202,9 @@ func (_client *MqttClient) PublishJson(topic string, obj any) error {
 	buffer, err := _client.serializer.EncodeJson(obj)
 	if err != nil {
 		return err
+	}
+	if _client.verbose {
+		fmt.Println(string(buffer))
 	}
 	token := _client.client.Publish(topic, _client.qos, false, buffer)
 	_client.publishMutex.Unlock()
