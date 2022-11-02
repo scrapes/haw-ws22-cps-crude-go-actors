@@ -56,6 +56,15 @@ func (actor *Actor) LeaveGroup(grp *Group) {
 	}
 }
 
+func (actor *Actor) GetGroup(name string) *Group {
+	for _, group := range actor.groups {
+		if group.Name == name {
+			return group
+		}
+	}
+	return nil
+}
+
 func (actor *Actor) GetTopic(name string) string {
 	str := "actor/by-id/" + actor.ID.String() + "/bhv/by-name/" + name
 	return strings.ToValidUTF8(str, "--")
