@@ -14,5 +14,4 @@ func TestNewMessage(t *testing.T) {
 	if message.BehaviourName != bhvName || message.Sender != actorID || message.Data != testString {
 		t.Error("Mismatched Data")
 	}
-
 }

@@ -31,10 +31,29 @@ func NewActor(com *com.MqttClient, typ string) *Actor {
 
 func (actor *Actor) JoinGroup(grp *Group) {
 	actor.groups[grp.ID] = grp
+	for _, bhv := range actor.behaviours {
+		topic := grp.GetTopic(bhv.GetName())
+		callback := actor.GetSubCallback(bhv)
+		if bhv.JSON {
+			err := actor.mqttClient.SubscribeJson(topic, bhv.GetTyp(), callback)
+			if err != nil {
+				fmt.Println(err)
+			}
+		} else {
+			err := actor.mqttClient.Subscribe(topic, bhv.GetTyp(), callback)
+			if err != nil {
+				fmt.Println(err)
+			}
+		}
+	}
 }
 
 func (actor *Actor) LeaveGroup(grp *Group) {
 	actor.groups[grp.ID] = nil
+	for _, behaviour := range actor.behaviours {
+		topic := grp.GetTopic(behaviour.GetName())
+		actor.mqttClient.Unsubscribe(topic, behaviour.GetID())
+	}
 }
 
 func (actor *Actor) GetTopic(name string) string {
@@ -84,7 +103,7 @@ func (actor *Actor) GetSubCallback(bhv *Behaviour) com.SubCallback {
 }
 
 func (actor *Actor) RemoveBehaviour(bhv *Behaviour) {
-	topic := "/cgoa/by-id/" + actor.ID.String() + "/bhv/" + bhv.GetName()
+	topic := actor.GetTopic(bhv.GetName())
 	actor.mqttClient.Unsubscribe(topic, bhv.GetID())
 	actor.behaviours[bhv.GetID()] = nil
 }

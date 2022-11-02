@@ -4,6 +4,7 @@ import (
 	"github.com/google/uuid"
 	"gitlab.com/anwski/crude-go-actors/com"
 	"reflect"
+	"strings"
 )
 
 type Callback[T any] func(self *Actor, message com.Message[T])
@@ -28,7 +29,7 @@ func _NewBehaviour[T any](Name string, callback Callback[T], json bool) *Behavio
 	genType := com.Message[T]{}
 	bhv := Behaviour{
 		callback: reflect.ValueOf(callback),
-		Name:     Name,
+		Name:     strings.Replace(Name, " ", "_", -1), //replace whitespace to prevent mqtt errors
 		typ:      reflect.TypeOf(genType),
 		id:       uuid.New(),
 		JSON:     json,
