@@ -3,7 +3,6 @@ package com
 import (
 	"fmt"
 	"github.com/google/uuid"
-	"gitlab.com/anwski/crude-go-actors/types"
 	"reflect"
 	"runtime"
 	"sync"
@@ -25,9 +24,9 @@ func TestMqttClient_Subscribe(t *testing.T) {
 	topic := "/test/mqtt/sub/%d"
 
 	msg := Message[string]{
-		Topic:  topic,
-		Data:   "lil",
-		Sender: types.ActorID(uuid.New()),
+		BehaviourName: topic,
+		Data:          "lil",
+		Sender:        uuid.New(),
 	}
 	for i := 0; i < sum; i++ {
 		tpc := fmt.Sprintf(topic, i)
@@ -52,7 +51,7 @@ func TestMqttClient_Subscribe(t *testing.T) {
 	for i := 0; i < sum; i++ {
 		tpc := fmt.Sprintf(topic, i)
 		msg.Data = tpc
-		msg.Topic = tpc
+		msg.BehaviourName = tpc
 		err3 := client.PublishJson(tpc, msg)
 		if err3 != nil {
 			t.Error(err3)

@@ -8,7 +8,7 @@ import (
 )
 
 func TestState_AddBehaviour(t *testing.T) {
-	client := com.NewMqttClient("mqtt://127.0.0.1:1883", true)
+	client := com.NewMqttClient("mqtt://127.0.0.1:1883", false)
 	err := client.ConnectSync()
 	if err != nil {
 		t.Error(err)
@@ -17,39 +17,46 @@ func TestState_AddBehaviour(t *testing.T) {
 
 	wg := sync.WaitGroup{}
 
-	topic := "/test/actor/sub/"
-	sum := 2
-	add := 2
+	sum := 99
 
-	for i := 0; i < sum*add; i++ {
-		actor := NewActor(client, "TestActor")
-		err := actor.AddBehaviour(NewBehaviourJson[int](fmt.Sprintf(topic+"%d", i), func(act *State, msg com.Message[int]) {
-			msg.Data += add
-			msg.Topic = fmt.Sprintf(topic+"%d", msg.Data)
-			err := act.mqttClient.PublishJson(msg.Topic, msg)
+	grp := NewGroup("AddNumberGroup")
+
+	bhv := NewBehaviourJson[int]("AddNumberBhv", func(act *Actor, msg com.Message[int]) {
+		if act.GetState() == msg.Data {
+			fmt.Println(msg.Data)
+			data := msg.Data
+			data++
+
+			pongMsg := com.NewGroupMessage[int]("AddNumberBhv", grp.ID, &data)
+			err := ActorSendMessageJson(act, pongMsg)
 			if err != nil {
 				fmt.Println(err)
 			}
 			wg.Done()
-		}))
+		}
+
+	})
+
+	for i := 0; i < sum; i++ {
+		actor := NewActor(client, "AddNumberActor")
+		actor.Become(i)
+		actor.JoinGroup(grp)
+
+		err := actor.AddBehaviour(bhv)
 		if err != nil {
 			t.Fatal(err)
 		}
 	}
-	wg.Add(sum * add)
-	fmt.Println("Starting round...")
-	for i := 0; i < add; i++ {
-		tpc := fmt.Sprintf(topic+"%d", i)
-		toSend := com.Message[int]{
-			Data:  i,
-			Topic: tpc,
-		}
-		err2 := client.PublishJson(toSend.Topic, toSend)
-		if err2 != nil {
-			t.Fatal(err2)
-		}
-	}
 
+	num := 0
+	initialMsg := com.NewGroupMessage[int](bhv.Name, grp.ID, &num)
+	wg.Add(sum)
+
+	err2 := initialMsg.SendJson(client)
+
+	if err2 != nil {
+		fmt.Println(err2)
+	}
 	wg.Wait()
 
 	fmt.Println("Done!")
@@ -64,7 +71,7 @@ func TestSendMessageAndJson(t *testing.T) {
 	}
 	sendingActor := NewActor(mqttClient, "SendingActor")
 	type args struct {
-		actor   *State
+		actor   *Actor
 		topic   string
 		message any
 	}
@@ -79,18 +86,18 @@ func TestSendMessageAndJson(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			testMessage := com.NewMessage(tt.args.topic, tt.args.actor.ID, &tt.args.message)
-			if err := SendMessage(tt.args.actor, testMessage); (err != nil) != tt.wantErr {
-				t.Errorf("SendMessage() error = %v, wantErr %v", err, tt.wantErr)
+			testMessage := com.NewDirectMessage(tt.args.topic, tt.args.actor.ID, &tt.args.message)
+			if err := ActorSendMessage(tt.args.actor, testMessage); (err != nil) != tt.wantErr {
+				t.Errorf("ActorSendMessage() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			testMessage := com.NewMessage(tt.args.topic, tt.args.actor.ID, &tt.args.message)
-			if err := SendMessageJson(tt.args.actor, testMessage); (err != nil) != tt.wantErr {
-				t.Errorf("SendMessage() error = %v, wantErr %v", err, tt.wantErr)
+			testMessage := com.NewDirectMessage(tt.args.topic, tt.args.actor.ID, &tt.args.message)
+			if err := ActorSendMessageJson(tt.args.actor, testMessage); (err != nil) != tt.wantErr {
+				t.Errorf("ActorSendMessage() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
 	}
