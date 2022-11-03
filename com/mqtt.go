@@ -138,6 +138,7 @@ func (_client *MqttClient) subscribe(json bool, topic string, typ reflect.Type, 
 
 		if err != nil {
 			fmt.Println(err)
+			fmt.Println(topic)
 			runtime.Breakpoint()
 			return
 		}
