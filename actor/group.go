@@ -18,7 +18,12 @@ func NewGroup(name string) *Group {
 	return &grp
 }
 
-func (grp *Group) GetTopic(name string) string {
+func (grp *Group) GetIDTopic(name string) string {
 	str := "group/by-id/" + grp.ID.String() + "/bhv/by-name/" + name
+	return strings.ToValidUTF8(str, "--")
+}
+
+func (grp *Group) GetNameTopic(name string) string {
+	str := "group/by-name/" + grp.Name + "/bhv/by-name/" + name
 	return strings.ToValidUTF8(str, "--")
 }

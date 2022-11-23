@@ -32,15 +32,24 @@ func NewActor(com *com.MqttClient, typ string) *Actor {
 func (actor *Actor) JoinGroup(grp *Group) {
 	actor.groups[grp.ID] = grp
 	for _, bhv := range actor.behaviours {
-		topic := grp.GetTopic(bhv.GetName())
+		NameTopic := grp.GetNameTopic(bhv.GetName())
+		IDTopic := grp.GetIDTopic(bhv.GetName())
 		callback := actor.GetSubCallback(bhv)
 		if bhv.JSON {
-			err := actor.mqttClient.SubscribeJson(topic, bhv.GetTyp(), callback)
+			err := actor.mqttClient.SubscribeJson(IDTopic, bhv.GetTyp(), callback)
+			if err != nil {
+				fmt.Println(err)
+			}
+			err = actor.mqttClient.SubscribeJson(NameTopic, bhv.GetTyp(), callback)
 			if err != nil {
 				fmt.Println(err)
 			}
 		} else {
-			err := actor.mqttClient.Subscribe(topic, bhv.GetTyp(), callback)
+			err := actor.mqttClient.Subscribe(IDTopic, bhv.GetTyp(), callback)
+			if err != nil {
+				fmt.Println(err)
+			}
+			err = actor.mqttClient.Subscribe(NameTopic, bhv.GetTyp(), callback)
 			if err != nil {
 				fmt.Println(err)
 			}
@@ -51,8 +60,10 @@ func (actor *Actor) JoinGroup(grp *Group) {
 func (actor *Actor) LeaveGroup(grp *Group) {
 	actor.groups[grp.ID] = nil
 	for _, behaviour := range actor.behaviours {
-		topic := grp.GetTopic(behaviour.GetName())
-		actor.mqttClient.Unsubscribe(topic, behaviour.GetID())
+		IDTopic := grp.GetIDTopic(behaviour.GetName())
+		NameTopic := grp.GetNameTopic(behaviour.GetName())
+		actor.mqttClient.Unsubscribe(IDTopic, behaviour.GetID())
+		actor.mqttClient.Unsubscribe(NameTopic, behaviour.GetID())
 	}
 }
 
@@ -80,19 +91,29 @@ func (actor *Actor) AddBehaviour(bhv *Behaviour) error {
 	/*topic_byID := "/actor/by-id/" + actor.ID.String() + "/bhv/by-ID/" + bhv.GetID().String()*/
 	if bhv.JSON {
 		for _, group := range actor.groups {
-			groupTopicname := group.GetTopic(bhv.GetName())
-			err := actor.mqttClient.SubscribeJson(groupTopicname, bhv.GetTyp(), callback)
+			IDTopic := group.GetIDTopic(bhv.GetName())
+			NameTopic := group.GetNameTopic(bhv.GetName())
+			err := actor.mqttClient.SubscribeJson(IDTopic, bhv.GetTyp(), callback)
 			if err != nil {
 				fmt.Println(err)
+			}
+			er := actor.mqttClient.SubscribeJson(NameTopic, bhv.GetTyp(), callback)
+			if er != nil {
+				fmt.Println(er)
 			}
 		}
 		return actor.mqttClient.SubscribeJson(topicByname, bhv.GetTyp(), callback)
 	} else {
 		for _, group := range actor.groups {
-			groupTopicname := group.GetTopic(bhv.GetName())
-			err := actor.mqttClient.Subscribe(groupTopicname, bhv.GetTyp(), callback)
+			IDTopic := group.GetIDTopic(bhv.GetName())
+			NameTopic := group.GetNameTopic(bhv.GetName())
+			err := actor.mqttClient.Subscribe(IDTopic, bhv.GetTyp(), callback)
 			if err != nil {
 				fmt.Println(err)
+			}
+			er := actor.mqttClient.Subscribe(NameTopic, bhv.GetTyp(), callback)
+			if er != nil {
+				fmt.Println(er)
 			}
 		}
 		return actor.mqttClient.Subscribe(topicByname, bhv.GetTyp(), callback)
