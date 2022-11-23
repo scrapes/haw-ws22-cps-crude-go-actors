@@ -10,7 +10,7 @@ import (
 )
 
 func TestMqttClient_Subscribe(t *testing.T) {
-	client := NewMqttClient("mqtt://127.0.0.1:1883", true)
+	client := NewMqttClient("mqtt://127.0.0.1:1883", true, 2)
 	err := client.ConnectSync()
 	if err != nil {
 		t.Error(err)

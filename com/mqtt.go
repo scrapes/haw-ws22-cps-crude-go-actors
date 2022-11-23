@@ -49,7 +49,7 @@ func MqttConfigure(verbose bool) {
 
 }
 
-func NewMqttClient(mqttHost string, verbose bool) *MqttClient {
+func NewMqttClient(mqttHost string, verbose bool, qos byte) *MqttClient {
 	MqttConfigure(verbose)
 	mqttUrl, err := url2.Parse(mqttHost)
 	hosts := []*url2.URL{mqttUrl}
@@ -75,7 +75,7 @@ func NewMqttClient(mqttHost string, verbose bool) *MqttClient {
 	ret := MqttClient{
 		client:     client,
 		verbose:    verbose,
-		qos:        1,
+		qos:        qos,
 		serializer: NewSerializer(),
 		callbacks:  make(map[string][]SubCallback),
 		types:      make(map[string]reflect.Type),

@@ -8,7 +8,7 @@ import (
 )
 
 func TestState_AddBehaviour(t *testing.T) {
-	client := com.NewMqttClient("mqtt://127.0.0.1:1883", false)
+	client := com.NewMqttClient("mqtt://127.0.0.1:1883", false, 2)
 	err := client.ConnectSync()
 	if err != nil {
 		t.Error(err)
@@ -64,7 +64,7 @@ func TestState_AddBehaviour(t *testing.T) {
 }
 
 func TestSendMessageAndJson(t *testing.T) {
-	mqttClient := com.NewMqttClient("mqtt://127.0.0.1:1883", true)
+	mqttClient := com.NewMqttClient("mqtt://127.0.0.1:1883", true, 2)
 	err := mqttClient.ConnectSync()
 	if err != nil {
 		t.Error(err)
