@@ -51,22 +51,39 @@ func (msg *Message[T]) ToPtrValue() reflect.Value {
 	return reflect.ValueOf(msg)
 }
 
-func (msg *Message[T]) GetTopic() string {
+func (msg *Message[T]) GetTopic(name string) string {
 	str := ""
-	if msg.isGroup {
-		str = "group/by-id/" + msg.Group.String() + "/bhv/by-name/" + msg.BehaviourName
+	identifier := ""
+	typ := ""
+	if name == "" {
+		typ = "by-id"
+		if msg.isGroup {
+			identifier = msg.Group.String()
+		} else {
+			identifier = msg.Receiver.String()
+		}
 	} else {
-		str = "actor/by-id/" + msg.Receiver.String() + "/bhv/by-name/" + msg.BehaviourName
+		typ = "by-name"
+		identifier = name
 	}
+	str = "group/" + typ + "/" + identifier + "/bhv/by-name/" + msg.BehaviourName
 	return strings.ToValidUTF8(str, "--")
 }
 
 func (msg *Message[T]) Send(mqttClient *MqttClient) error {
-	return mqttClient.Publish(msg.GetTopic(), *msg)
+	return mqttClient.Publish(msg.GetTopic(""), *msg)
 }
 
 func (msg *Message[T]) SendJson(mqttClient *MqttClient) error {
-	return mqttClient.PublishJson(msg.GetTopic(), *msg)
+	return mqttClient.PublishJson(msg.GetTopic(""), *msg)
+}
+
+func (msg *Message[T]) SendAsName(mqttClient *MqttClient, name string) error {
+	return mqttClient.Publish(msg.GetTopic(name), *msg)
+}
+
+func (msg *Message[T]) SendJsonAsName(mqttClient *MqttClient, name string) error {
+	return mqttClient.PublishJson(msg.GetTopic(name), *msg)
 }
 
 func (msg ReflectedMessagePtr) ToMessage() ReflectedMessage {
