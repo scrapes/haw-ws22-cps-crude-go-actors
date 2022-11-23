@@ -3,7 +3,6 @@ package com
 import (
 	"github.com/google/uuid"
 	"reflect"
-	"strings"
 )
 
 type ReflectedMessage reflect.Value
@@ -52,22 +51,28 @@ func (msg *Message[T]) ToPtrValue() reflect.Value {
 }
 
 func (msg *Message[T]) GetTopic(name string) string {
-	str := ""
-	identifier := ""
-	typ := ""
+	var Topic string
+
+	if msg.isGroup {
+		Topic = "group/"
+	} else {
+		Topic = "actor/"
+	}
+
 	if name == "" {
-		typ = "by-id"
+		Topic += "by-id/"
 		if msg.isGroup {
-			identifier = msg.Group.String()
+			Topic += msg.Group.String()
 		} else {
-			identifier = msg.Receiver.String()
+			Topic += msg.Receiver.String()
 		}
 	} else {
-		typ = "by-name"
-		identifier = name
+		Topic += "by-name/"
+		Topic += name
 	}
-	str = "group/" + typ + "/" + identifier + "/bhv/by-name/" + msg.BehaviourName
-	return strings.ToValidUTF8(str, "--")
+	Topic += "/bhv/by-name/" + msg.BehaviourName
+
+	return Topic
 }
 
 func (msg *Message[T]) Send(mqttClient *MqttClient) error {
