@@ -87,7 +87,6 @@ func NewMqttClient(mqttHost string, verbose bool, qos byte) *MqttClient {
 func (_client *MqttClient) Unsubscribe(topic string, id uuid.UUID) {
 	_client.mutexCallbacks.Lock()
 	defer _client.mutexCallbacks.Unlock()
-
 	index := -1
 	for i, callback := range _client.callbacks[topic] {
 		if callback.ID == id {
@@ -113,7 +112,6 @@ func (_client *MqttClient) SubscribeJson(topic string, typ reflect.Type, callbac
 
 func (_client *MqttClient) subscribe(json bool, topic string, typ reflect.Type, callback SubCallback) error {
 	_client.mutexCallbacks.Lock()
-	defer _client.mutexCallbacks.Unlock()
 
 	if msgType, ok := _client.types[topic]; ok {
 		if msgType != typ {
@@ -126,6 +124,7 @@ func (_client *MqttClient) subscribe(json bool, topic string, typ reflect.Type, 
 	}
 	_client.callbacks[topic] = append(_client.callbacks[topic], callback)
 
+	_client.mutexCallbacks.Unlock()
 	isJson := json
 	return mqttWait(_client.client.Subscribe(topic, _client.qos, func(client mqtt.Client, message mqtt.Message) {
 		var err error
