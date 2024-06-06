@@ -41,10 +41,12 @@ func (bhv *Behaviour) Call(self *Actor, messagePtr reflect.Value) {
 	// dereference pointer
 	message := reflect.Indirect(messagePtr)
 
+	self.lock.Lock()
 	bhv.callback.Call([]reflect.Value{
 		reflect.ValueOf(self),
 		message,
 	})
+	self.lock.Unlock()
 }
 
 func (bhv *Behaviour) GetName() string {
