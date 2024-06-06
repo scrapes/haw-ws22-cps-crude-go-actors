@@ -23,7 +23,7 @@ type MqttClient struct {
 	verbose        bool
 	qos            byte
 	serializer     *Serializer
-	mutexCallbacks sync.Mutex
+	mutexCallbacks sync.RWMutex
 	callbacks      map[string][]SubCallback
 	types          map[string]reflect.Type
 	publishMutex   sync.Mutex
@@ -129,6 +129,8 @@ func (_client *MqttClient) subscribe(json bool, topic string, typ reflect.Type, 
 	return mqttWait(_client.client.Subscribe(topic, _client.qos, func(client mqtt.Client, message mqtt.Message) {
 		var err error
 		var objectPointer reflect.Value
+
+		_client.mutexCallbacks.RLock()
 		if isJson {
 			objectPointer, err = _client.serializer.DecodeJson(_client.types[topic], message.Payload())
 		} else {
@@ -142,11 +144,10 @@ func (_client *MqttClient) subscribe(json bool, topic string, typ reflect.Type, 
 			return
 		}
 
-		_client.mutexCallbacks.Lock()
 		for _, handler := range _client.callbacks[topic] {
 			go handler.Callback(objectPointer)
 		}
-		_client.mutexCallbacks.Unlock()
+		_client.mutexCallbacks.RUnlock()
 	}))
 }
 
