@@ -124,9 +124,7 @@ func (actor *Actor) AddBehaviour(bhv *Behaviour) error {
 
 func (actor *Actor) GetCallback(bhv *Behaviour) func(msg reflect.Value) {
 	return func(msg reflect.Value) {
-		actor.lock.Lock()
 		bhv.Call(actor, msg)
-		actor.lock.Unlock()
 	}
 }
 func (actor *Actor) GetSubCallback(bhv *Behaviour) com.SubCallback {
