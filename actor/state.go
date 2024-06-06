@@ -6,6 +6,7 @@ import (
 	"gitlab.com/anwski/crude-go-actors/com"
 	"reflect"
 	"strings"
+	"sync"
 )
 
 type Actor struct {
@@ -15,6 +16,7 @@ type Actor struct {
 	behaviours map[uuid.UUID]*Behaviour
 	State      any
 	groups     map[uuid.UUID]*Group
+	lock       sync.Mutex
 }
 
 func NewActor(com *com.MqttClient, typ string) *Actor {
@@ -122,7 +124,9 @@ func (actor *Actor) AddBehaviour(bhv *Behaviour) error {
 
 func (actor *Actor) GetCallback(bhv *Behaviour) func(msg reflect.Value) {
 	return func(msg reflect.Value) {
+		actor.lock.Lock()
 		bhv.Call(actor, msg)
+		actor.lock.Unlock()
 	}
 }
 func (actor *Actor) GetSubCallback(bhv *Behaviour) com.SubCallback {
