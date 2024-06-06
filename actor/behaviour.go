@@ -43,12 +43,14 @@ func (bhv *Behaviour) Call(self *Actor, messagePtr reflect.Value) {
 
 	println(self.Type, "Calling behaviour")
 	self.lock.Lock()
+	println(self.Type, "Got Lock!")
 	bhv.callback.Call([]reflect.Value{
 		reflect.ValueOf(self),
 		message,
 	})
-	self.lock.Unlock()
 	println(self.Type, "Done calling behaviour")
+	self.lock.Unlock()
+	println(self.Type, "Unlock!")
 }
 
 func (bhv *Behaviour) GetName() string {
