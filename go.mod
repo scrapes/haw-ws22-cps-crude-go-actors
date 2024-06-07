@@ -1,4 +1,4 @@
-module gitlab.com/anwski/crude-go-actors
+module github.com/scrapes/haw-ws22-cps-crude-go-actors
 
 go 1.18
 

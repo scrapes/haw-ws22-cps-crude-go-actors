@@ -1,5 +1,5 @@
-PROJECT_NAME := "crude-go-actors"
-PKG := "gitlab.com/anwski/$(PROJECT_NAME)"
+PROJECT_NAME := "haw-ws22-cps-crude-go-actors"
+PKG := "github.com/scrapes/haw-ws22-cps-crude-go-actors"
 PKG_LIST := $(shell go list ${PKG}/... | grep -v /vendor/)
 GO_FILES := $(shell find . -name '*.go' | grep -v /vendor/ | grep -v _test.go)
 
