@@ -3,6 +3,7 @@ package com
 import (
 	"fmt"
 	"github.com/google/uuid"
+	crude_go_actors "gitlab.com/anwski/crude-go-actors"
 	"reflect"
 	"runtime"
 	"sync"
@@ -15,7 +16,7 @@ func TestMqttClient_Subscribe(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	fmt.Println("Connected")
+	crude_go_actors.Logger.Info("Connected")
 	sum := 1
 
 	wg := sync.WaitGroup{}

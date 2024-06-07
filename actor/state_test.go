@@ -2,6 +2,7 @@ package actor
 
 import (
 	"fmt"
+	crude_go_actors "gitlab.com/anwski/crude-go-actors"
 	"gitlab.com/anwski/crude-go-actors/com"
 	"sync"
 	"testing"
@@ -13,7 +14,7 @@ func TestState_AddBehaviour(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	fmt.Println("Connected")
+	crude_go_actors.Logger.Info("Connected")
 
 	wg := sync.WaitGroup{}
 

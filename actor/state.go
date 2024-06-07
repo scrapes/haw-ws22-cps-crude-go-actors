@@ -3,7 +3,9 @@ package actor
 import (
 	"fmt"
 	"github.com/google/uuid"
+	crude_go_actors "gitlab.com/anwski/crude-go-actors"
 	"gitlab.com/anwski/crude-go-actors/com"
+	"go.uber.org/zap"
 	"reflect"
 	"strings"
 	"sync"
@@ -40,20 +42,20 @@ func (actor *Actor) JoinGroup(grp *Group) {
 		if bhv.JSON {
 			err := actor.mqttClient.SubscribeJson(IDTopic, bhv.GetTyp(), callback)
 			if err != nil {
-				fmt.Println(err)
+				crude_go_actors.Logger.Error("Failed to subscribe to json topic", zap.Error(err), zap.String("topic", IDTopic))
 			}
 			err = actor.mqttClient.SubscribeJson(NameTopic, bhv.GetTyp(), callback)
 			if err != nil {
-				fmt.Println(err)
+				crude_go_actors.Logger.Error("Failed to subscribe to json topic", zap.Error(err), zap.String("topic", NameTopic))
 			}
 		} else {
 			err := actor.mqttClient.Subscribe(IDTopic, bhv.GetTyp(), callback)
 			if err != nil {
-				fmt.Println(err)
+				crude_go_actors.Logger.Error("Failed to subscribe to topic", zap.Error(err), zap.String("topic", IDTopic))
 			}
 			err = actor.mqttClient.Subscribe(NameTopic, bhv.GetTyp(), callback)
 			if err != nil {
-				fmt.Println(err)
+				crude_go_actors.Logger.Error("Failed to subscribe to topic", zap.Error(err), zap.String("topic", NameTopic))
 			}
 		}
 	}
@@ -97,11 +99,11 @@ func (actor *Actor) AddBehaviour(bhv *Behaviour) error {
 			NameTopic := group.GetNameTopic(bhv.GetName())
 			err := actor.mqttClient.SubscribeJson(IDTopic, bhv.GetTyp(), callback)
 			if err != nil {
-				fmt.Println(err)
+				crude_go_actors.Logger.Error("Failed to subscribe to json topic", zap.Error(err), zap.String("topic", IDTopic))
 			}
 			er := actor.mqttClient.SubscribeJson(NameTopic, bhv.GetTyp(), callback)
 			if er != nil {
-				fmt.Println(er)
+				crude_go_actors.Logger.Error("Failed to subscribe to json topic", zap.Error(er), zap.String("topic", NameTopic))
 			}
 		}
 		return actor.mqttClient.SubscribeJson(topicByname, bhv.GetTyp(), callback)
@@ -111,11 +113,11 @@ func (actor *Actor) AddBehaviour(bhv *Behaviour) error {
 			NameTopic := group.GetNameTopic(bhv.GetName())
 			err := actor.mqttClient.Subscribe(IDTopic, bhv.GetTyp(), callback)
 			if err != nil {
-				fmt.Println(err)
+				crude_go_actors.Logger.Error("Failed to subscribe to json topic", zap.Error(err), zap.String("topic", IDTopic))
 			}
 			er := actor.mqttClient.Subscribe(NameTopic, bhv.GetTyp(), callback)
 			if er != nil {
-				fmt.Println(er)
+				crude_go_actors.Logger.Error("Failed to subscribe to json topic", zap.Error(er), zap.String("topic", NameTopic))
 			}
 		}
 		return actor.mqttClient.Subscribe(topicByname, bhv.GetTyp(), callback)

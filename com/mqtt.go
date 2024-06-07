@@ -2,14 +2,14 @@ package com
 
 import (
 	"errors"
-	"fmt"
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"github.com/google/uuid"
+	crude_go_actors "gitlab.com/anwski/crude-go-actors"
+	"go.uber.org/zap"
 	"log"
 	url2 "net/url"
 	"os"
 	"reflect"
-	"runtime"
 	"sync"
 )
 
@@ -57,10 +57,7 @@ func NewMqttClient(mqttHost string, verbose bool, qos byte) *MqttClient {
 	clientID := uuid.New()
 
 	if err != nil {
-		_, err := fmt.Fprintln(os.Stderr, err)
-		if err != nil {
-			return nil
-		}
+		crude_go_actors.Logger.Error("Error Parsing Mqtt Host", zap.Error(err))
 		os.Exit(1)
 	}
 
@@ -138,9 +135,7 @@ func (_client *MqttClient) subscribe(json bool, topic string, typ reflect.Type, 
 		}
 
 		if err != nil {
-			fmt.Println(err)
-			fmt.Println(topic)
-			runtime.Breakpoint()
+			crude_go_actors.Logger.Error("Error deserializing Message", zap.Error(err), zap.String("topic", topic), zap.String("payload", string(message.Payload())))
 			return
 		}
 
@@ -170,9 +165,7 @@ func (_client *MqttClient) PublishValue(topic string, obj reflect.Value) error {
 	if err != nil {
 		return err
 	}
-	if _client.verbose {
-		fmt.Println(buffer)
-	}
+	crude_go_actors.Logger.Debug("Buffer value", zap.String("topic", topic), zap.String("value", string(buffer)))
 	token := _client.client.Publish(topic, _client.qos, false, buffer)
 	_client.publishMutex.Unlock()
 	return mqttWait(token)
@@ -185,9 +178,7 @@ func (_client *MqttClient) Publish(topic string, obj any) error {
 	if err != nil {
 		return err
 	}
-	if _client.verbose {
-		fmt.Println(buffer)
-	}
+	crude_go_actors.Logger.Debug("Buffer value", zap.String("topic", topic), zap.String("value", string(buffer)))
 	token := _client.client.Publish(topic, _client.qos, false, buffer)
 	_client.publishMutex.Unlock()
 	return mqttWait(token)
@@ -204,9 +195,7 @@ func (_client *MqttClient) PublishJson(topic string, obj any) error {
 	if err != nil {
 		return err
 	}
-	if _client.verbose {
-		fmt.Println(string(buffer))
-	}
+	crude_go_actors.Logger.Debug("Buffer value", zap.String("topic", topic), zap.String("value", string(buffer)))
 	token := _client.client.Publish(topic, _client.qos, false, buffer)
 	_client.publishMutex.Unlock()
 	return mqttWait(token)
