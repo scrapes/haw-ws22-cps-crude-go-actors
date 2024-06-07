@@ -3,8 +3,8 @@ package actor
 import (
 	"fmt"
 	"github.com/google/uuid"
-	crude_go_actors "gitlab.com/anwski/crude-go-actors"
-	"gitlab.com/anwski/crude-go-actors/com"
+	crude_go_actors "github.com/scrapes/haw-ws22-cps-crude-go-actors"
+	"github.com/scrapes/haw-ws22-cps-crude-go-actors/com"
 	"go.uber.org/zap"
 	"reflect"
 	"strings"

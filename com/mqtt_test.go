@@ -3,7 +3,7 @@ package com
 import (
 	"fmt"
 	"github.com/google/uuid"
-	crude_go_actors "gitlab.com/anwski/crude-go-actors"
+	crude_go_actors "github.com/scrapes/haw-ws22-cps-crude-go-actors"
 	"reflect"
 	"runtime"
 	"sync"

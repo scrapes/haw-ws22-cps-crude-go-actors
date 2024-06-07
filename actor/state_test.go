@@ -2,8 +2,8 @@ package actor
 
 import (
 	"fmt"
-	crude_go_actors "gitlab.com/anwski/crude-go-actors"
-	"gitlab.com/anwski/crude-go-actors/com"
+	crude_go_actors "github.com/scrapes/haw-ws22-cps-crude-go-actors"
+	"github.com/scrapes/haw-ws22-cps-crude-go-actors/com"
 	"sync"
 	"testing"
 )

@@ -4,7 +4,7 @@ import (
 	"errors"
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"github.com/google/uuid"
-	crude_go_actors "gitlab.com/anwski/crude-go-actors"
+	crude_go_actors "github.com/scrapes/haw-ws22-cps-crude-go-actors"
 	"go.uber.org/zap"
 	"log"
 	url2 "net/url"
